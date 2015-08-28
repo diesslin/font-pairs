@@ -5,43 +5,31 @@ title: Font Pairs
 <!DOCTYPE html>
 <head>
   <?php
-  $json = file_get_contents('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCQqdSotGRoFU331DHXZkt33jFFcB0XrdY');
-  $data = json_decode($json,true);
-  $items = $data['items'];
-  $allFonts = array();
-  foreach ($items as $item) {
-    array_push($allFonts, $item['family']);
-  }
-  $barDelimited = implode("|", $allFonts);
-  $barDelimited = str_replace(' ','+',$barDelimited);
+    include "partials/font-load.php";
   ?>
   <link href='http://fonts.googleapis.com/css?family=<?php echo $barDelimited; ?>' rel='stylesheet' type='text/css'>
 </head>
 <body>
-  <?php
-  $json = file_get_contents('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCQqdSotGRoFU331DHXZkt33jFFcB0XrdY');
-  $data = json_decode($json,true);
-  $items = $data['items'];
-  $i = 0;
-  $allFonts = array();
-  echo '<select>';
-  foreach ($items as $item) {
-    $i++;
-    $str = 'Font '.$i.' '.$item['family'].' Subsets:';
-    foreach ($item['variants'] as $variant) {
-      $str .= ' '.$variant.' ';
-    }
-    $str.= ' Variants';
-    foreach ($item['subsets'] as $subset) {
-      $str .= ' '.$subset;
-    }
-    array_push($allFonts, $item['family']);
-    echo "<option data-font=\"".$item["family"].','.$item["category"]."\" style=\"font-family: ".$item["family"].','.$item["category"]."\">".$item["family"].'</option>';
-    //data-font=.'"'.$item["family"]".'"'
-  }
-  echo '</select>';
-  //$barDelimited = implode("|", $allFonts);
-  //echo $barDelimited;
-  ?>
+  <form>
+    <select>
+      <?php
+        foreach ($items as $item) {
+          $i++;
+          $str = 'Font '.$i.' '.$item['family'].' Subsets:';
+          foreach ($item['variants'] as $variant) {
+            $str .= ' '.$variant.' ';
+          }
+          $str.= ' Variants';
+          foreach ($item['subsets'] as $subset) {
+            $str .= ' '.$subset;
+          }
+          array_push($allFonts, $item['family']);
+          echo "<option data-font=\"".$item["family"].','.$item["category"]."\" style=\"font-family: ".$item["family"].','.$item["category"]."\">".$item["family"].'</option>';
+        }
+      ?>
+    </select>
+    <input type="textarea" class="font-1-text" placeholder="Font 1 Text" value"green"></input>
+    <button>Add Combination</button>
+  </form>
 </body>
 </html>
