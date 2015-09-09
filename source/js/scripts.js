@@ -31,7 +31,8 @@ function process() {
   createCategortyDropDown( category );
 
   // Call function to create the Font drop down
-  createFontDropDown( font );
+  //createFontDropDown( font );
+  createFontDropDown( fontObject );
 }
 
 // Read JSON file in this case it will be getting google's font JSON
@@ -48,11 +49,6 @@ function createCategortyDropDown( category ) {
   // Create an empty array
   var categoryItems = [];
 
-  // Build the corresponding HTML elements for the category dropdown.
-  // $.each( category, function ( key, val ) {
-  //   categoryItems.push( "<option>" + val + "</option>" );
-  // });
-
   // Build the corresponding HTML elements for the category dropdown
   category.forEach( function ( val ) {
     categoryItems.push( "<option>" + val + "</option>" );
@@ -64,20 +60,12 @@ function createCategortyDropDown( category ) {
 
 // Create select list from font families data
 function createFontDropDown( font ) {
-  // Create an empty array.
-  var fontItems = [];
-
-  // Build the corresponding HTML elements for the category dropdown
-  font.forEach( function ( val ) {
-    fontItems.push( val );
-  });
-
   // Append the contents of our array to the body
-  selectList( "family-list", fontItems );
+  selectList( "family-list", font, true );
 }
 
 // Append the contents of our array to the body
-function selectList( listName, array ) {
+function selectList( listName, array, jsonObject ) {
   // Create select list
   select = document.createElement( 'select' );
   select.id = listName;
@@ -85,7 +73,17 @@ function selectList( listName, array ) {
 
   // Create options for select list
   var select = document.getElementById( listName );
-  array.forEach( function ( val ) {
-    select.options[select.options.length] = new Option( val, val );
-  });
+
+  // Check if in JSON format or in array then loop through each properly
+  if ( jsonObject ) {
+    // Loop through JSON and create new options for each item in select list
+    array.items.forEach( function ( val ) {
+      select.options[select.options.length] = new Option( val.family, val.category );
+    });
+  } else {
+    for ( i in array ) {
+      // Loop through array and add new options for each item in select list
+      select.options[select.options.length] = new Option( array[i], array[i] );
+    }
+  }
 }
