@@ -13,7 +13,7 @@ function process() {
   var font = [];
 
   // Add All Fonts category to select list
-  category.push( "All Fonts" );
+  category.push( "Select Font Category", "All Fonts" );
   // Cycle through the returned data, building a distinct list of categories
   fontObject.items.forEach( function ( val ) {
     // Check if value exists in array or not, this is not supported in IE8
@@ -62,6 +62,7 @@ function createCategortyDropDown( category ) {
 function createFontDropDown( font ) {
   // Append the contents of our array to the body
   selectList( "family-list", font, true );
+  document.getElementById("family-list").disabled = true;
 }
 
 // Append the contents of our array to the body
@@ -78,12 +79,12 @@ function selectList( listName, array, jsonObject ) {
   if ( jsonObject ) {
     // Loop through JSON and create new options for each item in select list
     array.items.forEach( function ( val ) {
-      select.options[select.options.length] = new Option( val.family, val.category );
+      select.options[ select.options.length ] = new Option( val.family, val.category );
     });
   } else {
     for ( i in array ) {
       // Loop through array and add new options for each item in select list
-      select.options[select.options.length] = new Option( array[i], array[i] );
+      select.options[ select.options.length ] = new Option( array[i], array[i] );
     }
   }
 }
