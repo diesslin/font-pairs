@@ -17,7 +17,6 @@ function process() {
     // Add All Fonts category to select list
     category.push( "Select Font Category", "All Fonts" );
     // Cycle through the returned data, building a distinct list of categories
-
     for ( i = 0; i < fontObject.items.length; i ++ ) {
       val = fontObject.items[i]
       if ( category.indexOf( val.category ) == "-1"  ) {
@@ -25,7 +24,7 @@ function process() {
       }
     };
 
-    // Cycle through the returned data, building a complete list of fonts (with categories)
+    // Cycle through the returned data, building a complete list of fonts
     for ( i = 0; i < fontObject.items.length; i ++ ) {
       val = fontObject.items[i]
       font.push( val.family );
@@ -116,6 +115,9 @@ function categoryFilter( selectId ) {
 function onChangeInit( selectId ) {
   var stringId = "#" + selectId
   document.querySelector( stringId ).addEventListener( 'change', function() {
-    console.log(this.value)
+    console.log(this.value);
+    var neighbor = this.nextSibling
+    neighbor.disabled = false;
+    console.log(neighbor.options.length);
   });
 }
