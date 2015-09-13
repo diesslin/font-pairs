@@ -11,8 +11,8 @@ function process() {
     fontObject = data;
 
     // Create arrays to hold items
-    var category = [];
-    var font = [];
+    var category = [],
+        font = []
 
     // Add All Fonts category to select list
     category.push( "Select Font Category", "All Fonts" );
@@ -22,13 +22,13 @@ function process() {
       if ( category.indexOf( val.category ) == "-1"  ) {
         category.push( val.category );
       }
-    };
+    }
 
     // Cycle through the returned data, building a complete list of fonts
     for ( i = 0; i < fontObject.items.length; i ++ ) {
       val = fontObject.items[i]
       font.push( val.family );
-    };
+    }
 
     // Call function to create the Category drop down
     createCategortyDropDown( category );
@@ -61,11 +61,12 @@ function createCategortyDropDown( category ) {
   // Build the corresponding HTML elements for the category dropdown
   for ( i = 0; i < category.length; i ++ ) {
     categoryItems.push( "<option>" + val + "</option>" );
-  };
+  }
 
   // Append the contents of our array to the body
   selectList( "category-list", category, false );
 
+  // Init change function for this item
   onChangeInit( "category-list" );
 }
 
@@ -94,7 +95,12 @@ function selectList( listName, array, jsonObject ) {
   if ( jsonObject ) {
     // Loop through JSON and create new options for each item in select list
     array.items.forEach( function ( val ) {
-      select.options[ select.options.length ] = new Option( val.family, val.category );
+      var newItem = new Option( val.family, val.category )
+      select.options[ select.options.length ] = newItem;
+      newItem.setAttribute( "data-name", val.family )
+      // var o1 = new Option("key","value");
+      // selbox.options[selbox.options.length] = o1;
+      // o1.setAttribute("key","value");
     });
   } else {
     for ( i in array ) {
@@ -106,8 +112,8 @@ function selectList( listName, array, jsonObject ) {
 
 // Filter dropdown by selected category
 function categoryFilter( selectId ) {
-  var e = document.getElementById(selectId);
-  var strUser = e.options[e.selectedIndex].value;
+  var e = document.getElementById(selectId),
+      strUser = e.options[e.selectedIndex].value
   console.log(strUser)
 }
 
@@ -115,9 +121,43 @@ function categoryFilter( selectId ) {
 function onChangeInit( selectId ) {
   var stringId = "#" + selectId
   document.querySelector( stringId ).addEventListener( 'change', function() {
-    console.log(this.value);
-    var neighbor = this.nextSibling
-    neighbor.disabled = false;
-    console.log(neighbor.options.length);
+    // Set variables for selecting this and nextSibling
+    var selected = this.value,
+        neighbor = this.nextSibling,
+        neighborOpts = neighbor.options;
+
+    // Protect default text from enabling select list
+    if ( selected == "Select Font Category" ) {
+      neighbor.disabled = true;
+    } else {
+      neighbor.disabled = false;
+    }
+
+    // Loop through each item on next select list
+    for ( i = 0; i < neighborOpts.length; i ++ ) {
+      // Make sure all options are disabled at first
+      neighborOpts[i].disabled = true;
+      neighborOpts[i].style.display = "none";
+      neighborOpts[i].style.fontFamily = neighborOpts[i].getAttribute("data-name");
+
+      // Filter selected family, I made this a switch for possible ease of additions in the future
+      // We hide and disable the filtered fonts just to be safe
+      switch ( selected ) {
+        case "All Fonts":
+          neighborOpts[i].disabled = false;
+          neighborOpts[i].style.display = "block";
+          break;
+        case neighborOpts[i].value:
+          neighborOpts[i].disabled = false;
+          neighborOpts[i].style.display = "block";
+          break;
+      }
+    }
   });
 }
+
+WebFont.load({
+    google: {
+      families: ['Droid Sans', 'Droid Serif']
+    }
+  });
