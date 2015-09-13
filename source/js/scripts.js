@@ -146,18 +146,35 @@ function onChangeInit( selectId ) {
         case "All Fonts":
           neighborOpts[i].disabled = false;
           neighborOpts[i].style.display = "block";
+          loadFontFiles( neighborOpts[i].style.fontFamily )
           break;
         case neighborOpts[i].value:
           neighborOpts[i].disabled = false;
           neighborOpts[i].style.display = "block";
+          loadFontFiles( neighborOpts[i].style.fontFamily )
           break;
       }
     }
   });
 }
 
-WebFont.load({
-    google: {
-      families: ['Droid Sans', 'Droid Serif']
-    }
-  });
+// Load font files
+var loadedFonts = []
+function loadFontFiles( font ) {
+  // Check too see if fonts are already loaded so we aren't making extra calls
+  if ( isInArray( font, loadedFonts ) != true ) {
+    loadedFonts.push( font )
+
+    // Load web font
+    WebFont.load({
+      google: {
+        families: [ font ]
+      }
+    });
+  }
+}
+
+// Checks arrays for values
+function isInArray( value, array ) {
+  return array.indexOf( value ) > -1;
+}
