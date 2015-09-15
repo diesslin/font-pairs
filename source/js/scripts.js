@@ -155,22 +155,26 @@ function onChangeInit( selectId ) {
           break;
       }
     }
+    console.log("done-loading")
   });
 }
 
-// Load font files
+// Load Font CSS
 var loadedFonts = []
-function loadFontFiles( font ) {
-  // Check too see if fonts are already loaded so we aren't making extra calls
-  if ( isInArray( font, loadedFonts ) != true ) {
-    loadedFonts.push( font )
-
-    // Load web font
-    WebFont.load({
-      google: {
-        families: [ font ]
-      }
-    });
+function loadFontFiles( fontName ) {
+  // Run if font isn't in array
+  if ( isInArray( fontName, loadedFonts ) != true ) {
+    // Push to array if not in it already
+    loadedFonts.push( fontName )
+    var headID = document.getElementsByTagName("head")[0];
+    var cssNode = document.createElement('link');
+    cssNode.type = 'text/css';
+    cssNode.rel = 'stylesheet';
+    addPlus = fontName.replace(/\s+/g, "+");
+    fontString = addPlus.replace(/'/g, "");
+    cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString );
+    cssNode.media = 'screen';
+    headID.appendChild(cssNode);
   }
 }
 
