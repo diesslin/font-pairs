@@ -114,7 +114,6 @@ function selectList( listName, array, jsonObject ) {
 function categoryFilter( selectId ) {
   var e = document.getElementById(selectId),
       strUser = e.options[e.selectedIndex].value
-  console.log(strUser)
 }
 
 // On change function for select lists
@@ -126,13 +125,8 @@ function onChangeInit( selectId ) {
         neighbor = this.nextSibling,
         neighborOpts = neighbor.options;
 
-    // Protect default text from enabling select list
-    if ( selected == "Select Font Category" ) {
-      neighbor.disabled = true;
-    } else {
-      neighbor.disabled = false;
-    }
-
+    neighbor.disabled = true;
+    
     // Loop through each item on next select list
     for ( i = 0; i < neighborOpts.length; i ++ ) {
       // Make sure all options are disabled at first
@@ -154,8 +148,13 @@ function onChangeInit( selectId ) {
           loadFontFiles( neighborOpts[i].style.fontFamily )
           break;
       }
+
+      // Protect default text from enabling select list and enable neighbor list
+      if ( i == ( neighborOpts.length - 1 ) && !( selected == "Select Font Category" ) ) {
+        console.log("loaded")
+        neighbor.disabled = false;
+      }
     }
-    console.log("done-loading")
   });
 }
 
