@@ -30,11 +30,17 @@ function process() {
       font.push( val.family );
     }
 
+    // Create form
+    initForm( "font-form" );
+
     // Call function to create the Category drop down
     createCategortyDropDown( category );
 
     // Call function to create the Font drop down
     createFontDropDown( fontObject );
+
+    // Create text input field
+    loremTextInput( "lorem-input", "family-list", "target-text" );
   });
 }
 
@@ -53,6 +59,12 @@ function fetchJSONFile( path, callback ) {
   httpRequest.send();
 }
 
+function initForm( formId ) {
+  form = document.createElement( 'form' );
+  form.id = formId;
+  document.body.appendChild( form );
+}
+
 // Create select list from Category data
 function createCategortyDropDown( category ) {
   // Create an empty array
@@ -63,7 +75,7 @@ function createCategortyDropDown( category ) {
     categoryItems.push( "<option>" + val + "</option>" );
   }
 
-  // Append the contents of our array to the body
+  // Append the contents of our array to the form
   selectList( "category-list", category, false );
 
   // Init change function for this item
@@ -72,7 +84,7 @@ function createCategortyDropDown( category ) {
 
 // Create select list from font families data
 function createFontDropDown( font ) {
-  // Append the contents of our array to the body
+  // Append the contents of our array to the form
   selectList( "family-list", font, true );
 
   //categoryFilter("family-list")
@@ -81,12 +93,12 @@ function createFontDropDown( font ) {
   document.getElementById( "family-list" ).disabled = true;
 }
 
-// Append the contents of our array to the body
+// Append the contents of our array to the form
 function selectList( listName, array, jsonObject ) {
   // Create select list
   select = document.createElement( 'select' );
   select.id = listName;
-  document.body.appendChild( select );
+  document.getElementById( 'font-form' ).appendChild( select );
 
   // Create options for select list
   var select = document.getElementById( listName );
@@ -108,13 +120,6 @@ function selectList( listName, array, jsonObject ) {
       select.options[ select.options.length ] = new Option( array[i], array[i] );
     }
   }
-}
-
-// Filter dropdown by selected category
-function categoryFilter( selectId ) {
-  var e = document.getElementById(selectId),
-      strUser = e.options[e.selectedIndex].value
-  console.log(strUser)
 }
 
 // On change function for select lists
@@ -157,6 +162,47 @@ function onChangeInit( selectId ) {
     }
     console.log("done-loading")
   });
+}
+
+// Append input to form
+function loremTextInput( inputId, fontListId, targetId ) {
+  // Create input for lorem ipsum text
+  input = document.createElement( 'input' );
+  input.id = inputId;
+  inputIdSelect = ( '"' + inputId + '"' )
+  input.value = "Enter Some Text Here";
+  document.getElementById( 'font-form' ).appendChild( input );
+
+  // Create area for target text
+  targetDiv( targetId );
+
+  // initiate function when writing
+  //document.getElementById( inputId ).addEventListener( 'keydown', writeText( targetId, inputId ) );
+  document.getElementById( inputId ).addEventListener( 'keydown', function( targetId, inputId ) {
+    //writeId = ( "'" + inputId + "'" ).toString()
+    //console.log(writeId)
+
+    // value = document.getElementById( writeId ).value();
+    value = document.getElementById( "lorem-input" ).value;
+    document.getElementById( "target-text" ).innerHTML = value;
+  });
+}
+
+// Function to write value to div
+function writeText ( divId, inputId ) {
+  writeId = ( "'" + inputId + "'" ).toString()
+  console.log(writeId)
+
+  // value = document.getElementById( writeId ).value();
+  value = document.getElementById( "lorem-input" ).value;
+  document.getElementById( divId ).innerHTML = value;
+}
+
+function targetDiv( divId ) {
+  // Create select list
+  var div = document.createElement( 'div' );
+  div.id = divId;
+  document.body.appendChild( div );
 }
 
 // Load Font CSS
