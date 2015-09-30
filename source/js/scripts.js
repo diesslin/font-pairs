@@ -91,6 +91,9 @@ function createFontDropDown( font ) {
 
   // Make list disabled until option is made
   document.getElementById( "family-list" ).disabled = true;
+
+  // Set the font family to selected font
+  setFont( 'family-list', 'lorem-input' );
 }
 
 // Append the contents of our array to the form
@@ -188,6 +191,13 @@ function loremTextInput( inputId, fontListId, targetId ) {
   });
 }
 
+function targetDiv( divId ) {
+  // Create select list
+  var div = document.createElement( 'div' );
+  div.id = divId;
+  document.body.appendChild( div );
+}
+
 // Function to write value to div
 function writeText ( divId, inputId ) {
   writeId = ( "'" + inputId + "'" ).toString()
@@ -196,13 +206,6 @@ function writeText ( divId, inputId ) {
   // value = document.getElementById( writeId ).value();
   value = document.getElementById( "lorem-input" ).value;
   document.getElementById( divId ).innerHTML = value;
-}
-
-function targetDiv( divId ) {
-  // Create select list
-  var div = document.createElement( 'div' );
-  div.id = divId;
-  document.body.appendChild( div );
 }
 
 // Load Font CSS
@@ -227,4 +230,14 @@ function loadFontFiles( fontName ) {
 // Checks arrays for values
 function isInArray( value, array ) {
   return array.indexOf( value ) > -1;
+}
+
+function setFont( selectedFont, targetDiv ) {
+  document.getElementById( selectedFont ).addEventListener( 'change', function() {
+    console.log(this)
+    value = this.value
+    document.getElementById( targetDiv ).value = value;
+    console.log( this.querySelectorAll( "option" ) );
+    //this.getAttribute( 'id' )
+  });
 }
