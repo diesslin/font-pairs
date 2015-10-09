@@ -93,7 +93,8 @@ function createFontDropDown( font ) {
   document.getElementById( "family-list" ).disabled = true;
 
   // Set the font family to selected font
-  setFont( 'family-list', 'lorem-input' );
+  var targets = [ 'lorem-input', 'target-text' ];
+  setFont( 'family-list', targets );
 }
 
 // Append the contents of our array to the form
@@ -113,9 +114,6 @@ function selectList( listName, array, jsonObject ) {
       var newItem = new Option( val.family, val.category )
       select.options[ select.options.length ] = newItem;
       newItem.setAttribute( "data-name", val.family )
-      // var o1 = new Option("key","value");
-      // selbox.options[selbox.options.length] = o1;
-      // o1.setAttribute("key","value");
     });
   } else {
     for ( i in array ) {
@@ -141,6 +139,7 @@ function onChangeInit( selectId ) {
       // Make sure all options are disabled at first
       neighborOpts[i].disabled = true;
       neighborOpts[i].style.display = "none";
+      neighborOpts[i].style.fontSize = 0;
       neighborOpts[i].style.fontFamily = neighborOpts[i].getAttribute("data-name");
 
       // Filter selected family, I made this a switch for possible ease of additions in the future
@@ -149,11 +148,13 @@ function onChangeInit( selectId ) {
         case "All Fonts":
           neighborOpts[i].disabled = false;
           neighborOpts[i].style.display = "block";
+          neighborOpts[i].style.fontSize = "100%";
           loadFontFiles( neighborOpts[i].style.fontFamily )
           break;
         case neighborOpts[i].value:
           neighborOpts[i].disabled = false;
           neighborOpts[i].style.display = "block";
+          neighborOpts[i].style.fontSize = "100%";
           loadFontFiles( neighborOpts[i].style.fontFamily )
           break;
       }
@@ -234,10 +235,10 @@ function isInArray( value, array ) {
 
 function setFont( selectedFont, targetDiv ) {
   document.getElementById( selectedFont ).addEventListener( 'change', function() {
-    console.log(this)
-    value = this.value
-    document.getElementById( targetDiv ).value = value;
-    console.log( this.querySelectorAll( "option" ) );
-    //this.getAttribute( 'id' )
+    value = this.options[this.selectedIndex].getAttribute( 'data-name' )
+    //document.getElementById( targetDiv ).value = value;
+    for ( i = 0; i < targetDiv.length; i ++ ) {
+      document.getElementById( targetDiv[i] ).style.fontFamily = value;
+    };
   });
 }
