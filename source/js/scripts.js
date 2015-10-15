@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", function() {
   process();
 });
 
+// Setup Global Variables
+var results = "results";
+
 // This function controls at a high level what needs to get run
 function process() {
   // Start by retrieving the JSON data from Google.
@@ -41,6 +44,15 @@ function process() {
 
     // Create text input field
     loremTextInput( "lorem-input", "family-list", "target-text" );
+
+    // Create Add button
+    addFont( "add-font" );
+
+    // Create area for results
+    targetDiv( results, "" );
+
+    // Populate fonts already created
+    populateFont( fontsAdded );
   });
 }
 
@@ -93,7 +105,8 @@ function createFontDropDown( font ) {
   document.getElementById( "family-list" ).disabled = true;
 
   // Set the font family to selected font
-  var targets = [ 'lorem-input', 'target-text' ];
+  // var targets = [ 'lorem-input', 'target-text' ];
+  var targets = [ 'lorem-input' ];
   setFont( 'family-list', targets );
 }
 
@@ -171,31 +184,41 @@ function onChangeInit( selectId ) {
 // Append input to form
 function loremTextInput( inputId, fontListId, targetId ) {
   // Create input for lorem ipsum text
+  var initVal = "Enter Some Text Here";
   input = document.createElement( 'input' );
   input.id = inputId;
   inputIdSelect = ( '"' + inputId + '"' )
-  input.value = "Enter Some Text Here";
+  input.value = initVal;
   document.getElementById( 'font-form' ).appendChild( input );
 
   // Create area for target text
-  targetDiv( targetId );
+  //targetDiv( targetId, initVal );
 
   // initiate function when writing
-  //document.getElementById( inputId ).addEventListener( 'keydown', writeText( targetId, inputId ) );
-  document.getElementById( inputId ).addEventListener( 'keydown', function( targetId, inputId ) {
-    //writeId = ( "'" + inputId + "'" ).toString()
-    //console.log(writeId)
-
-    // value = document.getElementById( writeId ).value();
-    value = document.getElementById( "lorem-input" ).value;
-    document.getElementById( "target-text" ).innerHTML = value;
-  });
+  // document.getElementById( inputId ).addEventListener( 'keydown', function( targetId, inputId ) {
+  //   value = document.getElementById( "lorem-input" ).value;
+  //   document.getElementById( "target-text" ).innerHTML = value;
+  // });
 }
 
-function targetDiv( divId ) {
+// Append add button to form
+function addFont( inputId, targetId ) {
+  // Create input for lorem ipsum text
+  input = document.createElement( 'input' );
+  input.id = inputId;
+  input.type = "button";
+  inputIdSelect = ( '"' + inputId + '"' )
+  document.getElementById( 'font-form' ).appendChild( input );
+
+  // Add function for adding font
+  addFontFunction( inputId );
+}
+
+function targetDiv( divId, initVal ) {
   // Create select list
   var div = document.createElement( 'div' );
   div.id = divId;
+  div.innerHTML = initVal;
   document.body.appendChild( div );
 }
 
@@ -233,12 +256,75 @@ function isInArray( value, array ) {
   return array.indexOf( value ) > -1;
 }
 
+// Set font to selected font
 function setFont( selectedFont, targetDiv ) {
   document.getElementById( selectedFont ).addEventListener( 'change', function() {
+    // Get selected item
     value = this.options[this.selectedIndex].getAttribute( 'data-name' )
-    //document.getElementById( targetDiv ).value = value;
+
+    // Set this fontFamily
+    this.style.fontFamily = value;
+
+    // Set font on target div
     for ( i = 0; i < targetDiv.length; i ++ ) {
-      document.getElementById( targetDiv[i] ).style.fontFamily = value;
+      var target = document.getElementById( targetDiv[i] )
+      target.style.fontFamily = value;
+      target.setAttribute( 'data-name', value );
     };
   });
+}
+
+function addFontFunction( inputId ) {
+  var addButton = document.getElementById( inputId );
+  addButton.onclick = function(){
+    var userInput = this.previousSibling,
+        val = userInput.value,
+        fontName = userInput.getAttribute( 'data-name' );
+
+    // Save entered font and value
+    saveFontLocally( val, fontName );
+    //SaveFontLocally()
+    return false;
+  };
+}
+
+// Create local variable and store
+var fontsAdded = [];
+fontsAdded.push( JSON.parse( localStorage.getItem( 'session' ) ) );
+localStorage.setItem( 'session', JSON.stringify( fontsAdded ) );
+
+// This function is used to store the font
+function saveFontLocally( val, fontName ) {
+  // Parse the serialized data back into an aray of objects
+  fontsAdded = JSON.parse( localStorage.getItem( 'session' ) );
+  // Push the new data (whether it be an object or anything else) onto the array
+  var arrayToPush = {};
+  arrayToPush[ "value" ] = val;
+  arrayToPush[ "fontName" ] = fontName;
+  fontsAdded.push ( arrayToPush );
+  // Alert the array value
+  //alert(fontsAdded);  // Should be something like [Object array]
+  // Re-serialize the array back into a string and store it in localStorage
+  localStorage.setItem( 'session', JSON.stringify( fontsAdded ) );
+  console.log( fontsAdded );
+  populateFont( fontsAdded );
+  //console.log(localStorage.setItem('session', JSON.stringify(fontsAdded)));
+  //window.localStorage.clear()
+}
+
+function populateFont( fontsArray ) {
+  document.getElementById( results ).innerHTML = '';
+  for ( i = 0; i < fontsArray.length; i ++ ) {
+    if ( fontsArray[i].value ) {
+      var p = document.createElement( 'p' );
+          input = document.createElement( 'input' );
+      p.id = i;
+      p.innerHTML = fontsArray[i].value;
+      p.style.fontFamily = fontsArray[i].fontName;
+      input.type = 'button';
+      input.value = '-';
+      document.getElementById( results ).appendChild( p );
+      document.getElementById( i ).appendChild( input );
+    }
+  }
 }
