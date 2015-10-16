@@ -207,6 +207,7 @@ function addFont( inputId, targetId ) {
   input = document.createElement( 'input' );
   input.id = inputId;
   input.type = "button";
+  input.value = "+";
   inputIdSelect = ( '"' + inputId + '"' )
   document.getElementById( 'font-form' ).appendChild( input );
 
@@ -322,9 +323,26 @@ function populateFont( fontsArray ) {
       p.innerHTML = fontsArray[i].value;
       p.style.fontFamily = fontsArray[i].fontName;
       input.type = 'button';
+      input.className = 'remove-font';
       input.value = '-';
       document.getElementById( results ).appendChild( p );
       document.getElementById( i ).appendChild( input );
     }
   }
+  removeFontButton();
+}
+
+function removeFontButton() {
+  // Visually remove the font
+  var removeButtons = document.getElementsByClassName( 'remove-font' );
+  for (var i = 0; i < removeButtons.length; i++) {
+    console.log(i)
+    var current = removeButtons[i];
+    current.addEventListener('click', removeThis, false);
+  }
+  // Remove the font data
+}
+
+function removeThis() {
+  this.parentNode.parentNode.removeChild(this.parentNode);
 }
