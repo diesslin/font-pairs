@@ -1,10 +1,12 @@
-﻿// This will just kick off everything when the document is ready
+"use strict";
+
+// This will just kick off everything when the document is ready
 document.addEventListener("DOMContentLoaded", function() {
   process();
 });
 
 // Setup Global Variables
-var results = "results";
+var results = "results"
 
 // This function controls at a high level what needs to get run
 function process() {
@@ -50,6 +52,9 @@ function process() {
 
     // Create area for results
     targetDiv( results, "" );
+
+    // Load font if data exists
+    loadFont();
 
     // Populate fonts already created
     populateFont( fontsAdded );
@@ -284,39 +289,55 @@ function addFontFunction( inputId ) {
 
     // Save entered font and value
     saveFontLocally( val, fontName );
+
     //SaveFontLocally()
     return false;
   };
 }
 
 // Create local variable and store
-var fontsAdded = [];
-fontsAdded.push( JSON.parse( localStorage.getItem( 'session' ) ) );
-localStorage.setItem( 'session', JSON.stringify( fontsAdded ) );
+// if ( !fontsAdded ) {
+//   var fontsAdded = [];
+//   fontsAdded.push( JSON.parse( localStorage.getItem( 'session' ) ) );
+//   localStorage.setItem( 'session', JSON.stringify( fontsAdded ) );
+// }
+// fontsAdded.push( JSON.parse( localStorage.getItem( 'session' ) ) );
+//localStorage.setItem( 'session', JSON.stringify( fontsAdded ) );
+
+var fontsAdded = [],
+    fontsExist = JSON.parse( localStorage.getItem( 'session' ) );
+
+function loadFont() {
+  if ( fontsExist ) {
+    fontsAdded = JSON.parse( localStorage.getItem( 'session' ) );
+    localStorage.setItem( 'session', JSON.stringify( fontsAdded ) );
+  } else {
+    fontsAdded = [];
+  }
+}
 
 // This function is used to store the font
 function saveFontLocally( val, fontName ) {
   // Parse the serialized data back into an aray of objects
-  fontsAdded = JSON.parse( localStorage.getItem( 'session' ) );
+  // if ( fontsExist ) {
+  //   fontsAdded = JSON.parse( localStorage.getItem( 'session' ) );
+  // }
   // Push the new data (whether it be an object or anything else) onto the array
   var arrayToPush = {};
   arrayToPush[ "value" ] = val;
   arrayToPush[ "fontName" ] = fontName;
   fontsAdded.push ( arrayToPush );
-  // Alert the array value
-  //alert(fontsAdded);  // Should be something like [Object array]
   // Re-serialize the array back into a string and store it in localStorage
   localStorage.setItem( 'session', JSON.stringify( fontsAdded ) );
   console.log( fontsAdded );
   populateFont( fontsAdded );
-  //console.log(localStorage.setItem('session', JSON.stringify(fontsAdded)));
   //window.localStorage.clear()
 }
 
 function populateFont( fontsArray ) {
   document.getElementById( results ).innerHTML = '';
   for ( i = 0; i < fontsArray.length; i ++ ) {
-    if ( fontsArray[i].value ) {
+    if ( fontsArray ) {
       var p = document.createElement( 'p' );
           input = document.createElement( 'input' );
       p.id = i;
@@ -325,24 +346,33 @@ function populateFont( fontsArray ) {
       input.type = 'button';
       input.className = 'remove-font';
       input.value = '-';
+      input.dataset.remove = i;
       document.getElementById( results ).appendChild( p );
-      document.getElementById( i ).appendChild( input );
+      document.getElementById(i).appendChild( input );
     }
   }
   removeFontButton();
 }
 
 function removeFontButton() {
-  // Visually remove the font
+  // Remove the font
   var removeButtons = document.getElementsByClassName( 'remove-font' );
-  for (var i = 0; i < removeButtons.length; i++) {
+  for ( var i = 0; i < removeButtons.length; i++ ) {
     console.log(i)
     var current = removeButtons[i];
-    current.addEventListener('click', removeThis, false);
+    current.addEventListener( 'click', function() {
+      removeThis( this, this.getAttribute( 'data-remove' ) );
+    });
   }
-  // Remove the font data
 }
 
-function removeThis() {
-  this.parentNode.parentNode.removeChild(this.parentNode);
+function removeThis( element, e ) {
+  // Visually remove item
+  element.parentNode.parentNode.removeChild( element.parentNode );
+  // Remove Data for item
+  console.log(e)
+  if ( fontsAdded.length ) {
+    fontsAdded.splice( e, 1 );
+    localStorage.setItem( 'session', JSON.stringify( fontsAdded ) );
+  }
 }
