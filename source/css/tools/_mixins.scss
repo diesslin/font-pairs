@@ -1,0 +1,10 @@
+@mixin button-shadow {
+  @include box-shadow(0 1px 1.5px 0 rgba(0,0,0,.12),0 1px 1px 0 rgba(0,0,0,.24));
+  @include transition-property(box-shadow);
+  @include transition-duration(0.2s);
+  @include transition-timing-function(ease-in-out);
+
+  &:active {
+    @include box-shadow(0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,.12),0 2px 4px -1px rgba(0,0,0,.2));
+  }
+}

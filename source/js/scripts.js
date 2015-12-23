@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
 // Setup Global Variables
 var results = "results",
     // var targets = [ 'lorem-input', 'target-text' ];
-    targets = [ 'lorem-input' ]; // Target div for font
+    targets = [ 'lorem-input', 'variants-list' ]; // Target div for font
 
 // This function controls at a high level what needs to get run
 function process() {
@@ -24,7 +24,7 @@ function process() {
 
     // Add All Fonts category to select list
     category.push( "Select Font Category", "All Fonts" );
-    
+
     // Cycle through the returned data, building a distinct list of categories, fonts and variants
     for ( i = 0; i < fontObject.items.length; i ++ ) {
       val = fontObject.items[i]
@@ -45,32 +45,47 @@ function process() {
       font.push( val.family );
     }
 
+    // Load page families for actual website styling
+    loadFontFiles( ['Vollkorn', 'Lato'] );
+
     // Create form
-    initForm( "font-form" );
+    initForm( 'font-form', 'form' );
 
     // Call function to create the Category drop down
-    createDropDown( category, "category-list" );
+    createDropDown( category, 'category-list', 'select' );
 
     // Call function to create the Font drop down
-    createFontDropDown( fontObject, 'family-list' );
+    createFontDropDown( fontObject, 'family-list', 'select', 'results' );
 
     // Call function to create the font weights drop down
-    createDropDown( variants, "variants-list", true );
+    createDropDown( variants, 'variants-list', 'select', true );
 
     // Create text input field
-    loremTextInput( "lorem-input", "family-list", "target-text" );
+    generalInput( 'lorem-input', 'text-area', "Enter Some Text Here", 'textarea' );
+
+    // Create font-size input
+    //generalInput( 'font-size', 'input', '1', 'input' );
+
+    // Create line-height input
+    //generalInput( 'line-height', 'input', '1', 'input' );
+
+    // Create remove fonts button
+    addButton( 'remove-font', 'action-button', 'font-form', 'remove', 'results' );
 
     // Create Add button
-    addFont( "add-font" );
+    addButton( 'add-font', 'action-button', 'font-form', 'add' );
 
     // Create area for results
-    targetDiv( results, "" );
+    targetDiv( results, results, "" );
 
     // Load font if data exists
     loadFont();
 
     // Populate fonts already created
     populateFont( fontsAdded );
+
+    // Run through fonts and start adding them in the background
+    setInterval( 'loadTimer( fontObject, fontsAdded )', 500 );
   });
 }
 
@@ -89,14 +104,15 @@ function fetchJSONFile( path, callback ) {
   httpRequest.send();
 }
 
-function initForm( formId ) {
+function initForm( formId, formClass ) {
   form = document.createElement( 'form' );
   form.id = formId;
+  form.className = formClass;
   document.body.appendChild( form );
 }
 
 // Create select list from data
-function createDropDown( data, id, disabled ) {
+function createDropDown( data, id, elementClass, disabled ) {
   // Create an empty array
   var selectItems = [];
 
@@ -106,7 +122,7 @@ function createDropDown( data, id, disabled ) {
   }
 
   // Append the contents of our array to the form
-  selectList( id, data, false );
+  selectList( id, data, elementClass, false );
 
   // Disable list
   if ( disabled ) {
@@ -121,9 +137,9 @@ function createDropDown( data, id, disabled ) {
 }
 
 // Create select list from font families data
-function createFontDropDown( font, id ) {
+function createFontDropDown( font, id, elementClass ) {
   // Append the contents of our array to the form
-  selectList( id, font, true );
+  selectList( id, font, elementClass, true );
 
   // Make list disabled until option is made
   document.getElementById( id ).disabled = true;
@@ -136,10 +152,11 @@ function createFontDropDown( font, id ) {
 }
 
 // Append the contents of our array to the form
-function selectList( listName, array, jsonObject ) {
+function selectList( listName, array, selectClass, jsonObject ) {
   // Create select list
   select = document.createElement( 'select' );
   select.id = listName;
+  select.className = selectClass;
   document.getElementById( 'font-form' ).appendChild( select );
 
   // Create options for select list
@@ -226,36 +243,49 @@ function onChangeInit( selectId ) {
 }
 
 // Append input to form
-function loremTextInput( inputId, fontListId, targetId ) {
-  // Create input for lorem ipsum text
-  var initVal = "Enter Some Text Here";
-  input = document.createElement( 'input' );
-  input.id = inputId;
+function generalInput( inputId, inputClass, initVal, elementType, targetId ) {
+  // Create input
+  textarea = document.createElement( elementType );
+  textarea.id = inputId;
+  textarea.className = inputClass;
   inputIdSelect = ( '"' + inputId + '"' )
-  input.value = initVal;
+  textarea.value = initVal;
 
-  //input.disabled = 'true'; // Probably don't need this
-  document.getElementById( 'font-form' ).appendChild( input );
+  document.getElementById( 'font-form' ).appendChild( textarea );
+
+  // initiate function when writing if target is set
+  if ( targetId ) {
+    document.getElementById( inputId ).addEventListener( 'keydown', function( targetId, inputId ) {
+      value = document.getElementById( "lorem-input" ).value;
+      document.getElementById( "target-text" ).innerHTML = value;
+    });
+  }
 }
 
 // Append add button to form
-function addFont( inputId, targetId ) {
-  // Create input for lorem ipsum text
+function addButton( inputId, inputClass, targetId, buttonFunction, targetElement ) {
+  // Create buttons
   input = document.createElement( 'input' );
   input.id = inputId;
+  input.className = inputClass;
   input.type = "button";
-  input.value = "+";
+  input.value = ( buttonFunction == 'add' ? '+' : '-' ); // Check if button is for adding
   inputIdSelect = ( '"' + inputId + '"' )
-  document.getElementById( 'font-form' ).appendChild( input );
+  document.getElementById( targetId ).appendChild( input );
 
   // Add function for adding font
-  addFontFunction( inputId );
+  if ( buttonFunction == 'add' ) {
+    addFontFunction( inputId );
+  } else if ( buttonFunction == 'remove' ) {
+    removeFonts( inputId, targetElement );
+  }
 }
 
-function targetDiv( divId, initVal ) {
+function targetDiv( divId, divClass, initVal ) {
   // Create select list
   var div = document.createElement( 'div' );
   div.id = divId;
+  div.className = divClass;
   div.innerHTML = initVal;
   document.body.appendChild( div );
 }
@@ -263,44 +293,52 @@ function targetDiv( divId, initVal ) {
 // Load Font CSS
 var loadedFonts = []
 function loadFontFiles( fontName ) {
-  // Run if font isn't in array
-  if ( isInArray( fontName, loadedFonts ) != true ) {
-    // Push to array if not in it already
-    loadedFonts.push( fontName )
-    var headID = document.getElementsByTagName("head")[0];
-    var cssNode = document.createElement('link');
-    cssNode.type = 'text/css';
-    cssNode.rel = 'stylesheet';
-    addPlus = fontName.replace(/\s+/g, "+");
-    fontString = addPlus.replace(/'/g, "");
+  // Check if is array or not
+  if ( !Array.isArray( fontName ) ) {
+    fontName = [fontName];
+  }
 
-    // This switch statement is to adjust to a few of google's api quirks
-    switch( fontString ) {
-      case 'Buda':
-        cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":300" );
-        break;
-      case 'Coda+Caption':
-        cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":800" );
-        break;
-      case 'Molle':
-        cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":400italic" );
-        break;
-      case 'Open+Sans+Condensed':
-        cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":300" );
-        break;
-      case 'UnifrakturCook':
-        cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":700" );
-        break;
-      case '':
-        cssNode.href = String( "http://fonts.googleapis.com/css?family=" + "Exo+2" );
-        break;
-      default:
-        cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString );
+  // Loop through each font sent in
+  for ( f = 0; f < fontName.length; f ++ ) {
+    // Run if font isn't in array
+    if ( isInArray( fontName[f], loadedFonts ) != true ) {
+      // Push to array if not in it already
+      loadedFonts.push( fontName[f] )
+      var headID = document.getElementsByTagName("head")[0];
+      var cssNode = document.createElement('link');
+      cssNode.type = 'text/css';
+      cssNode.rel = 'stylesheet';
+      addPlus = fontName[f].replace(/\s+/g, "+");
+      fontString = addPlus.replace(/'/g, "");
+
+      // This switch statement is to adjust to a few of google's api quirks
+      switch( fontString ) {
+        case 'Buda':
+          cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":300" );
+          break;
+        case 'Coda+Caption':
+          cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":800" );
+          break;
+        case 'Molle':
+          cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":400italic" );
+          break;
+        case 'Open+Sans+Condensed':
+          cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":300" );
+          break;
+        case 'UnifrakturCook':
+          cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString + ":700" );
+          break;
+        case '':
+          cssNode.href = String( "http://fonts.googleapis.com/css?family=" + "Exo+2" );
+          break;
+        default:
+          cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString );
+      }
+
+      //console.log(fontString);
+      cssNode.media = 'screen';
+      headID.appendChild(cssNode);
     }
-
-    //console.log(fontString);
-    cssNode.media = 'screen';
-    headID.appendChild(cssNode);
   }
 }
 
@@ -329,14 +367,36 @@ function setFont( selectedFont, targetDiv ) {
       // Get selected item
       value = this.value;
 
-      // Set this fontFamily
-      this.style.fontWeight = value;
+      // Set font weight after removing italic from string
+      if (( value.indexOf("italic") > -1 )) {``
+        weight = value.replace( "italic","" );
+        this.style.fontStyle = "italic";
+        italics = true;
+      } else {
+        weight = value;
+        this.style.fontStyle = "normal";
+        italics = false;
+      }
 
-      // Set font on target div
+      // Set this fontFamily
+      this.style.fontWeight = weight;
+      console.log(weight);
+
+      // Set font weight on target div
       for ( i = 0; i < targetDiv.length; i ++ ) {
-        var target = document.getElementById( targetDiv[i] )
-        target.style.fontWeight = value;
-        target.setAttribute( 'data-variants', value );
+        // Find all target items and set their values
+        var target = document.getElementById( targetDiv[i] );
+        target.style.fontWeight = weight;
+        target.setAttribute( 'data-variants', weight );
+
+        // If italics in name then set it
+        if ( italics ) {
+          target.style.fontStyle = "italic";
+          target.setAttribute( 'data-italic', "italic" );
+        } else {
+          target.style.fontStyle = "normal";
+          target.setAttribute( 'data-italic', "" );
+        }
       };
     }
   });
@@ -345,13 +405,16 @@ function setFont( selectedFont, targetDiv ) {
 function addFontFunction( inputId ) {
   var addButton = document.getElementById( inputId );
   addButton.onclick = function(){
-    var userInput = this.previousSibling,
-        val = userInput.value,
-        fontName = userInput.getAttribute( 'data-name' );
-        fontVariants = userInput.getAttribute( 'data-variants' );
+    var userInput = document.getElementById( 'lorem-input' ),
+        val = userInput.value.replace(/\n/g, '<br/>'),
+        fontName = userInput.getAttribute( 'data-name' ),
+        fontVariants = userInput.getAttribute( 'data-variants' ),
+        italic = userInput.getAttribute( 'data-italic' ),
+        fontSize = document.getElementById( 'font-size' ),
+        lineHeight = document.getElementById( 'line-height' );
 
     // Save entered font and value
-    saveFontLocally( val, fontName, fontVariants );
+    saveFontLocally( val, fontName, fontVariants, italic, fontSize, lineHeight );
 
     //SaveFontLocally()
     return false;
@@ -385,12 +448,43 @@ function loadFont() {
   }
 }
 
+// This function runs through the google fonts array and starts loading the fonts in
+function loadTimer( fontArray, addedArray ) {
+  console.log(fontArray);
+  console.log(addedArray);
+  fontObject = fontArray
+
+  // Run through array and check for unloaded fonts then load one
+  // for ( i = 0; i < fontObject.items.length; i ++ ) {
+  //   val = fontObject.items[i]
+  //
+  //   if !(fontsExist) {
+  //     // Push categories
+  //     if ( category.indexOf( val.category ) == "-1"  ) {
+  //       category.push( val.category );
+  //     }
+  //
+  //     // Push variants
+  //     for ( v = 0; v < val.variants.length; v ++ ) {
+  //       if ( variants.indexOf( val.variants[v] ) == "-1"  ) {
+  //         variants.push( val.variants[v] );
+  //       }
+  //     }
+  //   } else {
+  //     return();
+  //   }
+  // }
+}
+
 // This function is used to store the font
-function saveFontLocally( val, fontName, fontVariants ) {
+function saveFontLocally( val, fontName, fontVariants, italics, fontSize, lineHeight ) {
   var arrayToPush = {};
   arrayToPush[ "value" ] = val;
   arrayToPush[ "fontName" ] = fontName;
   arrayToPush[ "fontVariants" ] = fontVariants;
+  arrayToPush[ "italics" ] = italics;
+  arrayToPush[ "fontSize" ] = fontSize;
+  arrayToPush[ "lineHeight" ] = lineHeight;
   fontsAdded.push ( arrayToPush );
 
   // Re-serialize the array back into a string and store it in localStorage
@@ -401,22 +495,35 @@ function saveFontLocally( val, fontName, fontVariants ) {
 
 // Populate the fonts added
 function populateFont( fontsArray ) {
-  document.getElementById( results ).innerHTML = '';
+  var resultsContainer = document.getElementById( results )
+  resultsContainer.innerHTML = '';
 
   // Loop through fontsArray and create elements for each item in array
   for ( i = 0; i < fontsArray.length; i ++ ) {
     if ( fontsArray ) {
-      var p = document.createElement( 'p' );
+      var p = document.createElement( 'p' ),
           input = document.createElement( 'input' );
       p.id = i;
+      p.className = 'added-font';
       p.innerHTML = fontsArray[i].value;
+      p.style.fontSize = fontsArray[i].fontSize;
+      p.style.lineHeight = fontsArray[i].lineHeight;
       p.style.fontFamily = fontsArray[i].fontName;
       p.style.fontWeight = fontsArray[i].fontVariants;
+      p.style.fontStyle = fontsArray[i].italics;
       input.type = 'button';
       input.className = 'remove-font';
       input.value = '-';
       input.dataset.remove = i;
-      document.getElementById( results ).appendChild( p );
+
+      // Check if there is a child item to append before or else append a child
+      if ( resultsContainer.childNodes[0] != undefined ) {
+        resultsContainer.insertBefore( p, resultsContainer.childNodes[0] );
+      } else {
+        resultsContainer.appendChild( p );
+      }
+
+      // Append remove button to element
       document.getElementById(i).appendChild( input );
     }
   }
@@ -438,6 +545,7 @@ function removeFontButton() {
   }
 }
 
+// Remove this whatever it is
 function removeThis( element, e ) {
   // Visually remove item
   element.parentNode.parentNode.removeChild( element.parentNode );
@@ -446,5 +554,18 @@ function removeThis( element, e ) {
   if ( fontsAdded.length ) {
     fontsAdded.splice( e, 1 );
     localStorage.setItem( 'session', JSON.stringify( fontsAdded ) );
+  }
+}
+
+// This function clears all fonts
+function removeFonts( inputId, targetId ) {
+  //window.localStorage.clear();
+  var addButton = document.getElementById( inputId );
+
+  // When clicked clear data and items
+  addButton.onclick = function(){
+    document.getElementById( targetId ).innerHTML = '';
+    fontsAdded = [];
+    window.localStorage.clear();
   }
 }

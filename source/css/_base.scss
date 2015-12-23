@@ -1,0 +1,13 @@
+html {
+  box-sizing: border-box;
+  font-family: $font-fam-1;
+  font-size: $base-font-size;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+
+  &:focus {
+    outline: 0;
+  }
+}
