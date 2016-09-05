@@ -6,9 +6,8 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // Setup Global Variables
-var results = "results",
+var targets = [ 'lorem-input', 'variants-list' ]; // Target div for font
     // var targets = [ 'lorem-input', 'target-text' ];
-    targets = [ 'lorem-input', 'variants-list' ]; // Target div for font
 
 // This function controls at a high level what needs to get run
 function process() {
@@ -76,7 +75,7 @@ function process() {
     addButton( 'add-font', 'action-button', 'font-form', 'add' );
 
     // Create area for results
-    targetDiv( results, results, "" );
+    targetDiv( 'results', 'results', "" );
 
     // Load font if data exists
     loadFont();
@@ -198,7 +197,8 @@ function onChangeInit( selectId ) {
       for ( i = 0; i < neighborOpts.length; i ++ ) {
         // Make sure all options are disabled at first
         neighborOpts[i].disabled = true;
-        neighborOpts[i].style.display = "none";
+        neighborOpts[i].hidden = true;
+        //neighborOpts[i].style.display = "none";
         neighborOpts[i].style.fontSize = 0;
         neighborOpts[i].style.fontFamily = neighborOpts[i].getAttribute("data-name");
 
@@ -495,7 +495,7 @@ function saveFontLocally( val, fontName, fontVariants, italics, fontSize, lineHe
 
 // Populate the fonts added
 function populateFont( fontsArray ) {
-  var resultsContainer = document.getElementById( results )
+  var resultsContainer = document.getElementById( 'results' )
   resultsContainer.innerHTML = '';
 
   // Loop through fontsArray and create elements for each item in array
