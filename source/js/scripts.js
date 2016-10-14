@@ -14,7 +14,7 @@ function process() {
   // Start by retrieving the JSON data from Google.
   fetchJSONFile( 'https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCQqdSotGRoFU331DHXZkt33jFFcB0XrdY', function( data ){
     // Create variable for JSON object
-    fontObject = data;
+    var fontObject = data;
 
     // Create arrays to hold items
     var category = [],
@@ -51,10 +51,10 @@ function process() {
     initForm( 'font-form', 'form' );
 
     // Call function to create the Category drop down
-    createDropDown( category, 'category-list', 'select' );
+    createDropDown( category, 'category-list', 'select', false, 'family-list' );
 
     // Call function to create the Font drop down
-    createFontDropDown( fontObject, 'family-list', 'select', 'results' );
+    createFontDropDown( fontObject, 'family-list', 'select', 'variants-list' );
 
     // Call function to create the font weights drop down
     createDropDown( variants, 'variants-list', 'select', true );
@@ -84,7 +84,7 @@ function process() {
     populateFont( fontsAdded );
 
     // Run through fonts and start adding them in the background
-    setInterval( 'loadTimer( fontObject, fontsAdded )', 500 );
+    //loadTimer( fontObject, fontsAdded );
   });
 }
 
@@ -111,7 +111,7 @@ function initForm( formId, formClass ) {
 }
 
 // Create select list from data
-function createDropDown( data, id, elementClass, disabled ) {
+function createDropDown( data, id, elementClass, disabled, siblingElement ) {
   // Create an empty array
   var selectItems = [];
 
@@ -129,14 +129,14 @@ function createDropDown( data, id, elementClass, disabled ) {
   }
 
   // Init change function for this item
-  onChangeInit( id );
+  onChangeInit( id, siblingElement );
 
   // Set the font family to selected font
   setFont( id, targets );
 }
 
 // Create select list from font families data
-function createFontDropDown( font, id, elementClass ) {
+function createFontDropDown( font, id, elementClass, siblingElement ) {
   // Append the contents of our array to the form
   selectList( id, font, elementClass, true );
 
@@ -144,7 +144,7 @@ function createFontDropDown( font, id, elementClass ) {
   document.getElementById( id ).disabled = true;
 
   // Init change function for this item
-  onChangeInit( id );
+  onChangeInit( id, siblingElement );
 
   // Set the font family to selected font
   setFont( id, targets );
@@ -179,12 +179,12 @@ function selectList( listName, array, selectClass, jsonObject ) {
 }
 
 // On change function for select lists
-function onChangeInit( selectId ) {
+function onChangeInit( selectId, siblingElement ) {
   var stringId = "#" + selectId
   document.querySelector( stringId ).addEventListener( 'change', function() {
     // Set variables for selecting this and nextSibling
     var selected = this.value,
-        neighbor = this.nextSibling,
+        neighbor = document.getElementById(siblingElement), 
         neighborOpts = neighbor.options;
         variants = this.options[this.selectedIndex].getAttribute('data-variants');
         fontName = this.options[this.selectedIndex].getAttribute('data-name');
@@ -198,7 +198,7 @@ function onChangeInit( selectId ) {
         // Make sure all options are disabled at first
         neighborOpts[i].disabled = true;
         neighborOpts[i].hidden = true;
-        //neighborOpts[i].style.display = "none";
+        neighborOpts[i].style.display = "none";
         neighborOpts[i].style.fontSize = 0;
         neighborOpts[i].style.fontFamily = neighborOpts[i].getAttribute("data-name");
 
@@ -225,13 +225,26 @@ function onChangeInit( selectId ) {
         neighbor.disabled = false;
         selectedFont = variants.split(',');
         for ( i = 0; i < neighborOpts.length; i ++ ) {
-          for ( s = 0; s < selectedFont.length; s ++ ) {
-            if ( neighborOpts[i].value == selectedFont[s] ) {
-              neighborOpts[i].disabled = false;
-              neighborOpts[i].style.display = "block";
-              neighborOpts[i].style.fontSize = "100%";
-              loadFontFiles( fontName + ":" + selectedFont[s] );
+          if ( selectedFont.indexOf(neighborOpts[i].value) > -1 ) {             
+            // Set variables for checking weight
+            var weight = neighborOpts[i].value,
+                italic = false;
+
+            // Set styles for each item
+            // split weight text if italic is in it and set italic style
+            if ( weight.indexOf( 'italic' ) > -1 ) {
+              weight = weight.replace( 'italic', '' );
+              italic = true;
+              neighborOpts[i].style.fontWeight = weight;
+              neighborOpts[i].style.fontStyle = 'italic';
+            } else {
+              neighborOpts[i].style.fontWeight = weight;
             }
+
+            neighborOpts[i].disabled = false;
+            neighborOpts[i].style.display = "block";
+            neighborOpts[i].style.fontSize = "100%";
+            loadFontFiles( fontName + ":" + weight );
           }
         }
       }
@@ -308,9 +321,7 @@ function loadFontFiles( fontName ) {
       var cssNode = document.createElement('link');
       cssNode.type = 'text/css';
       cssNode.rel = 'stylesheet';
-      addPlus = fontName[f].replace(/\s+/g, "+");
-      fontString = addPlus.replace(/'/g, "");
-
+      fontString = fontName[f].replace(/\s+/g, "+").replace(/'/g, "").replace(/"/g, "");
       // This switch statement is to adjust to a few of google's api quirks
       switch( fontString ) {
         case 'Buda':
@@ -335,11 +346,11 @@ function loadFontFiles( fontName ) {
           cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString );
       }
 
-      //console.log(fontString);
       cssNode.media = 'screen';
       headID.appendChild(cssNode);
     }
   }
+  // TODO: return a finished indicator and enable dropdown
 }
 
 // Checks arrays for values
@@ -380,7 +391,6 @@ function setFont( selectedFont, targetDiv ) {
 
       // Set this fontFamily
       this.style.fontWeight = weight;
-      console.log(weight);
 
       // Set font weight on target div
       for ( i = 0; i < targetDiv.length; i ++ ) {
@@ -452,28 +462,32 @@ function loadFont() {
 function loadTimer( fontArray, addedArray ) {
   console.log(fontArray);
   console.log(addedArray);
-  fontObject = fontArray
+  var fontObject = fontArray;
 
+  
+  setInterval( 'lazyLoadFonts( fontObject, fontsAdded )', 500 );
   // Run through array and check for unloaded fonts then load one
-  // for ( i = 0; i < fontObject.items.length; i ++ ) {
-  //   val = fontObject.items[i]
-  //
-  //   if !(fontsExist) {
-  //     // Push categories
-  //     if ( category.indexOf( val.category ) == "-1"  ) {
-  //       category.push( val.category );
-  //     }
-  //
-  //     // Push variants
-  //     for ( v = 0; v < val.variants.length; v ++ ) {
-  //       if ( variants.indexOf( val.variants[v] ) == "-1"  ) {
-  //         variants.push( val.variants[v] );
-  //       }
-  //     }
-  //   } else {
-  //     return();
-  //   }
-  // }
+  function lazyLoadFonts( fontObject, fontsAdded ) {
+    for ( i = 0; i < fontObject.items.length; i ++ ) {
+      val = fontObject.items[i]
+  
+      if (!fontsExist) {
+        // Push categories
+        if ( category.indexOf( val.category ) == "-1"  ) {
+          category.push( val.category );
+        }
+  
+        // Push variants
+        for ( v = 0; v < val.variants.length; v ++ ) {
+          if ( variants.indexOf( val.variants[v] ) == "-1"  ) {
+            variants.push( val.variants[v] );
+          }
+        }
+      } else {
+        return;
+      }
+    }
+  }
 }
 
 // This function is used to store the font
