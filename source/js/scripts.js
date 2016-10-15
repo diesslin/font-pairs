@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Setup Global Variables
 var targets = [ 'lorem-input', 'variants-list' ]; // Target div for font
-    // var targets = [ 'lorem-input', 'target-text' ];
 
 // This function controls at a high level what needs to get run
 function process() {
@@ -25,8 +24,8 @@ function process() {
     category.push( "Select Font Category", "All Fonts" );
 
     // Cycle through the returned data, building a distinct list of categories, fonts and variants
-    for ( i = 0; i < fontObject.items.length; i ++ ) {
-      val = fontObject.items[i]
+    for ( var i = 0; i < fontObject.items.length; i ++ ) {
+      var val = fontObject.items[i]
 
       // Push categories
       if ( category.indexOf( val.category ) == "-1"  ) {
@@ -34,7 +33,7 @@ function process() {
       }
 
       // Push variants
-      for ( v = 0; v < val.variants.length; v ++ ) {
+      for ( var v = 0; v < val.variants.length; v ++ ) {
         if ( variants.indexOf( val.variants[v] ) == "-1"  ) {
           variants.push( val.variants[v] );
         }
@@ -57,7 +56,7 @@ function process() {
     createFontDropDown( fontObject, 'family-list', 'select', 'variants-list' );
 
     // Call function to create the font weights drop down
-    createDropDown( variants, 'variants-list', 'select', true );
+    createDropDown( variants, 'variants-list', 'select', true, false );
 
     // Create text input field
     generalInput( 'lorem-input', 'text-area', "Enter Some Text Here", 'textarea' );
@@ -104,7 +103,7 @@ function fetchJSONFile( path, callback ) {
 }
 
 function initForm( formId, formClass ) {
-  form = document.createElement( 'form' );
+  var form = document.createElement( 'form' );
   form.id = formId;
   form.className = formClass;
   document.body.appendChild( form );
@@ -116,8 +115,8 @@ function createDropDown( data, id, elementClass, disabled, siblingElement ) {
   var selectItems = [];
 
   // Build the corresponding HTML elements for the category dropdown
-  for ( i = 0; i < data.length; i ++ ) {
-    selectItems.push( "<option>" + val + "</option>" );
+  for ( var i = 0; i < data.length; i ++ ) {
+    selectItems.push( "<option>" + data[i] + "</option>" );
   }
 
   // Append the contents of our array to the form
@@ -171,7 +170,7 @@ function selectList( listName, array, selectClass, jsonObject ) {
       newItem.dataset.variants = val.variants;
     });
   } else {
-    for ( i in array ) {
+    for ( var i in array ) {
       // Loop through array and add new options for each item in select list
       select.options[ select.options.length ] = new Option( array[i], array[i] );
     }
@@ -185,8 +184,8 @@ function onChangeInit( selectId, siblingElement ) {
     // Set variables for selecting this and nextSibling
     var selected = this.value,
         neighbor = document.getElementById(siblingElement), 
-        neighborOpts = neighbor.options;
-        variants = this.options[this.selectedIndex].getAttribute('data-variants');
+        neighborOpts = neighbor.options,
+        variants = this.options[this.selectedIndex].getAttribute('data-variants'),
         fontName = this.options[this.selectedIndex].getAttribute('data-name');
 
     // Make sure neighbor is disabled first
@@ -194,7 +193,7 @@ function onChangeInit( selectId, siblingElement ) {
 
     // Loop through each item on next select list if a list exists
     if ( neighborOpts ) {
-      for ( i = 0; i < neighborOpts.length; i ++ ) {
+      for ( var i = 0; i < neighborOpts.length; i ++ ) {
         // Make sure all options are disabled at first
         neighborOpts[i].disabled = true;
         neighborOpts[i].hidden = true;
@@ -222,9 +221,9 @@ function onChangeInit( selectId, siblingElement ) {
 
       // Check if this is for variants
       if ( variants ) {
+        var selectedFont = variants.split(',');
         neighbor.disabled = false;
-        selectedFont = variants.split(',');
-        for ( i = 0; i < neighborOpts.length; i ++ ) {
+        for ( var i = 0; i < neighborOpts.length; i ++ ) {
           if ( selectedFont.indexOf(neighborOpts[i].value) > -1 ) {             
             // Set variables for checking weight
             var weight = neighborOpts[i].value,
@@ -258,12 +257,11 @@ function onChangeInit( selectId, siblingElement ) {
 // Append input to form
 function generalInput( inputId, inputClass, initVal, elementType, targetId ) {
   // Create input
-  textarea = document.createElement( elementType );
+  var textarea = document.createElement( elementType ),    
+      inputIdSelect = ( '"' + inputId + '"' );
   textarea.id = inputId;
   textarea.className = inputClass;
-  inputIdSelect = ( '"' + inputId + '"' )
   textarea.value = initVal;
-
   document.getElementById( 'font-form' ).appendChild( textarea );
 
   // initiate function when writing if target is set
@@ -278,12 +276,12 @@ function generalInput( inputId, inputClass, initVal, elementType, targetId ) {
 // Append add button to form
 function addButton( inputId, inputClass, targetId, buttonFunction, targetElement ) {
   // Create buttons
-  input = document.createElement( 'input' );
+  var input = document.createElement( 'input' ),
+      inputIdSelect = ( '"' + inputId + '"' );
   input.id = inputId;
   input.className = inputClass;
   input.type = "button";
   input.value = ( buttonFunction == 'add' ? '+' : '-' ); // Check if button is for adding
-  inputIdSelect = ( '"' + inputId + '"' )
   document.getElementById( targetId ).appendChild( input );
 
   // Add function for adding font
@@ -312,16 +310,16 @@ function loadFontFiles( fontName ) {
   }
 
   // Loop through each font sent in
-  for ( f = 0; f < fontName.length; f ++ ) {
+  for ( var f = 0; f < fontName.length; f ++ ) {
     // Run if font isn't in array
     if ( isInArray( fontName[f], loadedFonts ) != true ) {
       // Push to array if not in it already
       loadedFonts.push( fontName[f] )
-      var headID = document.getElementsByTagName("head")[0];
-      var cssNode = document.createElement('link');
+      var headID = document.getElementsByTagName("head")[0],
+          cssNode = document.createElement('link'),
+          fontString = fontName[f].replace(/\s+/g, "+").replace(/'/g, "").replace(/"/g, "");
       cssNode.type = 'text/css';
       cssNode.rel = 'stylesheet';
-      fontString = fontName[f].replace(/\s+/g, "+").replace(/'/g, "").replace(/"/g, "");
       // This switch statement is to adjust to a few of google's api quirks
       switch( fontString ) {
         case 'Buda':
@@ -363,37 +361,37 @@ function setFont( selectedFont, targetDiv ) {
   document.getElementById( selectedFont ).addEventListener( 'change', function() {
     if ( selectedFont == "family-list" ) {
       // Get selected item
-      value = this.options[this.selectedIndex].getAttribute( 'data-name' );
+      var value = this.options[this.selectedIndex].getAttribute( 'data-name' );
 
       // Set this fontFamily
       this.style.fontFamily = value;
 
       // Set font on target div
-      for ( i = 0; i < targetDiv.length; i ++ ) {
+      for ( var i = 0; i < targetDiv.length; i ++ ) {
         var target = document.getElementById( targetDiv[i] )
         target.style.fontFamily = value;
         target.setAttribute( 'data-name', value );
       };
     } else if ( selectedFont == "variants-list" ) {
       // Get selected item
-      value = this.value;
+      var value = this.value;
 
       // Set font weight after removing italic from string
-      if (( value.indexOf("italic") > -1 )) {``
-        weight = value.replace( "italic","" );
+      if (( value.indexOf("italic") > -1 )) {
+        var weight = value.replace( "italic","" ),
+            italics = true;
         this.style.fontStyle = "italic";
-        italics = true;
       } else {
-        weight = value;
+        var weight = value,
+            italics = false;
         this.style.fontStyle = "normal";
-        italics = false;
       }
 
       // Set this fontFamily
       this.style.fontWeight = weight;
 
       // Set font weight on target div
-      for ( i = 0; i < targetDiv.length; i ++ ) {
+      for ( var i = 0; i < targetDiv.length; i ++ ) {
         // Find all target items and set their values
         var target = document.getElementById( targetDiv[i] );
         target.style.fontWeight = weight;
@@ -468,7 +466,7 @@ function loadTimer( fontArray, addedArray ) {
   setInterval( 'lazyLoadFonts( fontObject, fontsAdded )', 500 );
   // Run through array and check for unloaded fonts then load one
   function lazyLoadFonts( fontObject, fontsAdded ) {
-    for ( i = 0; i < fontObject.items.length; i ++ ) {
+    for ( var i = 0; i < fontObject.items.length; i ++ ) {
       val = fontObject.items[i]
   
       if (!fontsExist) {
@@ -478,7 +476,7 @@ function loadTimer( fontArray, addedArray ) {
         }
   
         // Push variants
-        for ( v = 0; v < val.variants.length; v ++ ) {
+        for ( var v = 0; v < val.variants.length; v ++ ) {
           if ( variants.indexOf( val.variants[v] ) == "-1"  ) {
             variants.push( val.variants[v] );
           }
@@ -513,7 +511,7 @@ function populateFont( fontsArray ) {
   resultsContainer.innerHTML = '';
 
   // Loop through fontsArray and create elements for each item in array
-  for ( i = 0; i < fontsArray.length; i ++ ) {
+  for ( var i = 0; i < fontsArray.length; i ++ ) {
     if ( fontsArray ) {
       var p = document.createElement( 'p' ),
           input = document.createElement( 'input' );
