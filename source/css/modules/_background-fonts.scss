@@ -1,0 +1,18 @@
+.background-fonts {
+  z-index: -1;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
+
+.background-fonts__font {
+  //position: absolute;
+  //left: 0;
+  //top: 0;
+  color: $black;
+  opacity: 0.25;
+  display: inline;
+  margin-right: 1rem;
+}

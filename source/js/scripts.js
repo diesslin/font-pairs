@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // Setup Global Variables
-var targets = [ 'lorem-input', 'variants-list' ]; // Target div for font
+var targets = [ 'lorem-input', 'variants-list', 'category-list' ]; // Target div for font
 
 // This function controls at a high level what needs to get run
 function process() {
@@ -43,6 +43,9 @@ function process() {
       font.push( val.family );
     }
 
+    // Create area for background fonts, this needs to be before the font family's are loaded
+    targetDiv( '', 'background-fonts', '' );
+
     // Load page families for actual website styling
     loadFontFiles( ['Vollkorn', 'Lato'] );
 
@@ -74,7 +77,7 @@ function process() {
     addButton( 'add-font', 'action-button', 'font-form', 'add' );
 
     // Create area for results
-    targetDiv( 'results', 'results', "" );
+    targetDiv( 'results', 'results', '' );
 
     // Load font if data exists
     loadFont();
@@ -309,17 +312,29 @@ function loadFontFiles( fontName ) {
     fontName = [fontName];
   }
 
+  // Set variable for backgroud font append group and target to append group
+  var allBackgroundFonts = document.createDocumentFragment(),
+      documentBody = document.getElementsByClassName( 'background-fonts' )[0];
+
   // Loop through each font sent in
   for ( var f = 0; f < fontName.length; f ++ ) {
     // Run if font isn't in array
     if ( isInArray( fontName[f], loadedFonts ) != true ) {
       // Push to array if not in it already
       loadedFonts.push( fontName[f] )
+     
+      var p = document.createElement( 'p' );
+      p.className = 'background-fonts__font';
+      p.innerHTML = fontName[f];
+      p.style.fontFamily = fontName[f];
+      allBackgroundFonts.appendChild( p );
+
       var headID = document.getElementsByTagName("head")[0],
           cssNode = document.createElement('link'),
           fontString = fontName[f].replace(/\s+/g, "+").replace(/'/g, "").replace(/"/g, "");
       cssNode.type = 'text/css';
       cssNode.rel = 'stylesheet';
+
       // This switch statement is to adjust to a few of google's api quirks
       switch( fontString ) {
         case 'Buda':
@@ -348,7 +363,10 @@ function loadFontFiles( fontName ) {
       headID.appendChild(cssNode);
     }
   }
-  // TODO: return a finished indicator and enable dropdown
+
+  // Append group of background fonts
+  documentBody.appendChild(allBackgroundFonts);
+  // TODO: See if there's a way to disable font list until all fonts are rendered
 }
 
 // Checks arrays for values
