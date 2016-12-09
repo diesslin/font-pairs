@@ -169,8 +169,8 @@ function selectList( listName, array, selectClass, jsonObject ) {
     array.items.forEach( function ( val ) {
       var newItem = new Option( val.family, val.category );
       select.options[ select.options.length ] = newItem;
-      newItem.dataset.name = val.family;
-      newItem.dataset.variants = val.variants;
+      newItem.setAttribute('data-name', val.family);
+      newItem.setAttribute('data-variants', val.variants);
     });
   } else {
     for ( var i in array ) {
@@ -186,7 +186,7 @@ function onChangeInit( selectId, siblingElement ) {
   document.querySelector( stringId ).addEventListener( 'change', function() {
     // Set variables for selecting this and nextSibling
     var selected = this.value,
-        neighbor = document.getElementById(siblingElement), 
+        neighbor = document.getElementById(siblingElement),
         neighborOpts = neighbor.options,
         variants = this.options[this.selectedIndex].getAttribute('data-variants'),
         fontName = this.options[this.selectedIndex].getAttribute('data-name');
@@ -227,7 +227,7 @@ function onChangeInit( selectId, siblingElement ) {
         var selectedFont = variants.split(',');
         neighbor.disabled = false;
         for ( var i = 0; i < neighborOpts.length; i ++ ) {
-          if ( selectedFont.indexOf(neighborOpts[i].value) > -1 ) {             
+          if ( selectedFont.indexOf(neighborOpts[i].value) > -1 ) {
             // Set variables for checking weight
             var weight = neighborOpts[i].value,
                 italic = false;
@@ -260,7 +260,7 @@ function onChangeInit( selectId, siblingElement ) {
 // Append input to form
 function generalInput( inputId, inputClass, initVal, elementType, targetId ) {
   // Create input
-  var textarea = document.createElement( elementType ),    
+  var textarea = document.createElement( elementType ),
       inputIdSelect = ( '"' + inputId + '"' );
   textarea.id = inputId;
   textarea.className = inputClass;
@@ -312,25 +312,27 @@ function loadFontFiles( fontName ) {
     fontName = [fontName];
   }
 
-  // Set variable for backgroud font append group and target to append group
+  // Set variable for backgroud font append group, target to append group, document head, and append group for font links
   var allBackgroundFonts = document.createDocumentFragment(),
-      documentBody = document.getElementsByClassName( 'background-fonts' )[0];
+      documentBody = document.getElementsByClassName( 'background-fonts' )[0],
+      documentHead = document.getElementsByTagName("head")[0],
+      fontLinks = document.createDocumentFragment();
 
   // Loop through each font sent in
   for ( var f = 0; f < fontName.length; f ++ ) {
+
     // Run if font isn't in array
     if ( isInArray( fontName[f], loadedFonts ) != true ) {
       // Push to array if not in it already
       loadedFonts.push( fontName[f] )
-     
+
       var p = document.createElement( 'p' );
       p.className = 'background-fonts__font';
       p.innerHTML = fontName[f];
       p.style.fontFamily = fontName[f];
       allBackgroundFonts.appendChild( p );
 
-      var headID = document.getElementsByTagName("head")[0],
-          cssNode = document.createElement('link'),
+      var cssNode = document.createElement('link'),
           fontString = fontName[f].replace(/\s+/g, "+").replace(/'/g, "").replace(/"/g, "");
       cssNode.type = 'text/css';
       cssNode.rel = 'stylesheet';
@@ -358,10 +360,14 @@ function loadFontFiles( fontName ) {
         default:
           cssNode.href = String( "http://fonts.googleapis.com/css?family=" + fontString );
       }
-
       cssNode.media = 'screen';
-      headID.appendChild(cssNode);
+
+      // Append child to fontLinks
+      fontLinks.appendChild(cssNode);
     }
+
+    // Append all font links to head
+    documentHead.appendChild(fontLinks);
   }
 
   // Append group of background fonts
@@ -480,19 +486,19 @@ function loadTimer( fontArray, addedArray ) {
   console.log(addedArray);
   var fontObject = fontArray;
 
-  
+
   setInterval( 'lazyLoadFonts( fontObject, fontsAdded )', 500 );
   // Run through array and check for unloaded fonts then load one
   function lazyLoadFonts( fontObject, fontsAdded ) {
     for ( var i = 0; i < fontObject.items.length; i ++ ) {
       val = fontObject.items[i]
-  
+
       if (!fontsExist) {
         // Push categories
         if ( category.indexOf( val.category ) == "-1"  ) {
           category.push( val.category );
         }
-  
+
         // Push variants
         for ( var v = 0; v < val.variants.length; v ++ ) {
           if ( variants.indexOf( val.variants[v] ) == "-1"  ) {
