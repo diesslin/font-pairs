@@ -7,15 +7,27 @@
 
 .added-font {
   position: relative;
-  padding: 1rem 3rem;
+  padding: 1.5rem 6rem 1.5rem 1.5rem;
   background: $blue;
   color: $white;
   min-height: 6rem;
 
-  // Will need a fallback from this
+  // TODO: Will need a fallback from this
   display: flex;
   justify-content: center;
   flex-direction: column;
+  transition: opacity 0.2s; 
+
+  animation: fadeIn 0.2s 
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .remove-font {
