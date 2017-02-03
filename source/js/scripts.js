@@ -50,7 +50,8 @@ function process() {
     loadFontFiles( ['Vollkorn', 'Lato'] );
 
     // Create form
-    initForm( 'font-form', 'form' );
+    var bodyCopyForm = new initForm( 'font-form', 'form' );
+    bodyCopyForm;
 
     // Call function to create the Category drop down
     createDropDown( category, 'category-list', 'select', false, 'family-list' );
