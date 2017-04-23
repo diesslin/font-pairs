@@ -8,17 +8,17 @@ document.addEventListener("DOMContentLoaded", function() {
 // Setup Global Variables
 var targets = [ 'lorem-input', 'variants-list', 'category-list' ]; // Target div for font
 
+// Create arrays to hold items
+var category = [],
+    font = [],
+    variants = [];
+
 // This function controls at a high level what needs to get run
 function process() {
   // Start by retrieving the JSON data from Google.
   fetchJSONFile( 'https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCQqdSotGRoFU331DHXZkt33jFFcB0XrdY', function( data ){
     // Create variable for JSON object
     var fontObject = data;
-
-    // Create arrays to hold items
-    var category = [],
-        font = [],
-        variants = [];
 
     // Add All Fonts category to select list
     category.push( "Select Font Category", "All Fonts" );
@@ -87,7 +87,7 @@ function process() {
     populateFont( fontsAdded );
 
     // Run through fonts and start adding them in the background
-    //loadTimer( fontObject, fontsAdded );
+    loadTimer( fontObject, fontsAdded );
   });
 }
 
@@ -313,6 +313,7 @@ function loadFontFiles( fontName ) {
     fontName = [fontName];
   }
 
+  // Append these individually to add cool animation
   // Set variable for backgroud font append group, target to append group, document head, and append group for font links
   var allBackgroundFonts = document.createDocumentFragment(),
       documentBody = document.getElementsByClassName( 'background-fonts' )[0],
@@ -483,34 +484,17 @@ function loadFont() {
 
 // This function runs through the google fonts array and starts loading the fonts in
 function loadTimer( fontArray, addedArray ) {
-  console.log(fontArray);
-  console.log(addedArray);
-  var fontObject = fontArray;
+  var fontObject = fontArray,
+      index = 0;
 
-
-  setInterval( 'lazyLoadFonts( fontObject, fontsAdded )', 500 );
-  // Run through array and check for unloaded fonts then load one
-  function lazyLoadFonts( fontObject, fontsAdded ) {
-    for ( var i = 0; i < fontObject.items.length; i ++ ) {
-      val = fontObject.items[i]
-
-      if (!fontsExist) {
-        // Push categories
-        if ( category.indexOf( val.category ) == "-1"  ) {
-          category.push( val.category );
-        }
-
-        // Push variants
-        for ( var v = 0; v < val.variants.length; v ++ ) {
-          if ( variants.indexOf( val.variants[v] ) == "-1"  ) {
-            variants.push( val.variants[v] );
-          }
-        }
-      } else {
-        return;
-      }
-    }
+  function nextFont() {
+    loadFontFiles( fontObject['items'][index]['family'] );
+    index = (index + 1) % fontObject['items'].length;
   }
+
+  nextFont();
+
+  setInterval( nextFont, 1 );
 }
 
 // This function is used to store the font
