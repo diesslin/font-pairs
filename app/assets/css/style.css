@@ -335,7 +335,8 @@ input, select, textarea {
   border: none;
   padding: 0.5rem;
   color: #1F1F1E;
-  background-color: #FCF7D3; }
+  background-color: #FCF7D3;
+  outline: 0; }
   input:disabled, select:disabled, textarea:disabled {
     background-color: #a0a09c; }
 
@@ -345,7 +346,7 @@ input, select, textarea {
   border-top: solid 10px #1F1F1E;
   margin: 0 0 1.75% 2%;
   box-shadow: 0 1px 1.5px 0 rgba(0, 0, 0, 0.12), 0 1px 1px 0 rgba(0, 0, 0, 0.24);
-  transition: box-shadow 0.2s ease--in-out; }
+  transition: box-shadow 0.2s ease-in-out; }
   .select:active, .select:focus {
     box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2); }
   .select:first-child {
@@ -357,7 +358,7 @@ input, select, textarea {
   margin: 0 0 2% 0;
   border-left: solid 10px #1F1F1E;
   box-shadow: 0 1px 1.5px 0 rgba(0, 0, 0, 0.12), 0 1px 1px 0 rgba(0, 0, 0, 0.24);
-  transition: box-shadow 0.2s ease--in-out;
+  transition: box-shadow 0.2s ease-in-out;
   resize: vertical; }
   .text-area:active, .text-area:focus {
     box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2); }
@@ -367,7 +368,7 @@ input, select, textarea {
   font-family: lato;
   margin: 0;
   box-shadow: 0 1px 1.5px 0 rgba(0, 0, 0, 0.12), 0 1px 1px 0 rgba(0, 0, 0, 0.24);
-  transition: box-shadow 0.2s ease--in-out; }
+  transition: box-shadow 0.2s ease-in-out; }
   .action-button:active, .action-button:focus {
     box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2); }
 
@@ -379,7 +380,7 @@ input, select, textarea {
 
 .added-font {
   position: relative;
-  padding: 1rem 3rem;
+  padding: 1.5rem 6rem 1.5rem 1.5rem;
   background: #4E0BD8;
   color: #FCF7D3;
   min-height: 6rem;
@@ -391,7 +392,22 @@ input, select, textarea {
           justify-content: center;
   -webkit-flex-direction: column;
       -ms-flex-direction: column;
-          flex-direction: column; }
+          flex-direction: column;
+  transition: opacity 0.2s;
+  -webkit-animation: fadeIn 0.2s;
+          animation: fadeIn 0.2s; }
+
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
 
 .remove-font {
   position: absolute;
@@ -402,6 +418,21 @@ input, select, textarea {
   height: 3rem;
   font-family: lato;
   box-shadow: 0 1px 1.5px 0 rgba(0, 0, 0, 0.12), 0 1px 1px 0 rgba(0, 0, 0, 0.24);
-  transition: box-shadow 0.2s ease--in-out; }
+  transition: box-shadow 0.2s ease-in-out; }
   .remove-font:active, .remove-font:focus {
     box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2); }
+
+.background-fonts {
+  z-index: -1;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0; }
+
+.background-fonts__font {
+  color: #1F1F1E;
+  opacity: 0.25;
+  display: inline;
+  margin-right: 1rem;
+  transition: opacity 3s; }
